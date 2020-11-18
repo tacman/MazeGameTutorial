@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.InputSystem;
 
 //<summary>
 //Ball movement controlls and simple third-person-style camera
@@ -20,19 +21,38 @@ public class RollerBall : MonoBehaviour {
 		mAudioSource = GetComponent<AudioSource> ();
 	}
 
+	void OnJump()
+    {
+		Debug.Log("Jump!");
+
+		if (mAudioSource != null && JumpSound != null)
+		{
+			mAudioSource.PlayOneShot(JumpSound);
+		}
+		mRigidBody.AddForce(Vector3.up * 200);
+
+	}
+
+	void OnMove(InputValue inputValue)
+    {
+
+		Debug.Log("Move! "+ Input.GetAxis("Horizontal").ToString() );
+		float speedX = Input.GetAxisRaw("Horizontal");  // Left, Right
+		float speedY = Input.GetAxisRaw("Vertical");  // Back, Forward
+		Vector3 moveVec = new Vector3(speedX, 0, speedY);
+
+		mRigidBody.AddTorque(Vector3.back * Input.GetAxis("Horizontal") * 10);
+
+	}
+
 	void FixedUpdate () {
 		if (mRigidBody != null) {
 			if (Input.GetButton ("Horizontal")) {
 				mRigidBody.AddTorque(Vector3.back * Input.GetAxis("Horizontal")*10);
 			}
 			if (Input.GetButton ("Vertical")) {
+				Debug.Log(Input.GetAxis("Vertical"));
 				mRigidBody.AddTorque(Vector3.right * Input.GetAxis("Vertical")*10);
-			}
-			if (Input.GetButtonDown("Jump")) {
-				if(mAudioSource != null && JumpSound != null){
-					mAudioSource.PlayOneShot(JumpSound);
-				}
-				mRigidBody.AddForce(Vector3.up*200);
 			}
 		}
 		if (ViewCamera != null) {
@@ -54,7 +74,7 @@ public class RollerBall : MonoBehaviour {
 			if (mAudioSource != null && HitSound != null && coll.relativeVelocity.y > .5f) {
 				mAudioSource.PlayOneShot (HitSound, coll.relativeVelocity.magnitude);
 			}
-		} else {
+		} else { // must be the wall
 			if (mAudioSource != null && HitSound != null && coll.relativeVelocity.magnitude > 2f) {
 				mAudioSource.PlayOneShot (HitSound, coll.relativeVelocity.magnitude);
 			}
