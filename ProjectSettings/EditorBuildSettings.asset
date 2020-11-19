@@ -4,6 +4,9 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/MazeScene.unity
+    guid: 9fbf058610edaaa428209bcd535f8e27
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 8040eaf5c6068884b8789507337dc875, type: 2}

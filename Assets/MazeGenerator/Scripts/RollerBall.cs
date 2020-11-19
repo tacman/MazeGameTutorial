@@ -11,55 +11,57 @@ public class RollerBall : MonoBehaviour {
 	public AudioClip JumpSound = null;
 	public AudioClip HitSound = null;
 	public AudioClip CoinSound = null;
+	public bool allowMidairJumps = false;
 
 	private Rigidbody mRigidBody = null;
 	private AudioSource mAudioSource = null;
-	private bool mFloorTouched = false;
+	private bool mFloorTouched = false; 
 
 	void Start () {
 		mRigidBody = GetComponent<Rigidbody> ();
 		mAudioSource = GetComponent<AudioSource> ();
+		
 	}
 
 	void OnJump()
     {
-		Debug.Log("Jump!");
 
-		if (mAudioSource != null && JumpSound != null)
+		if (mFloorTouched || allowMidairJumps)
 		{
-			mAudioSource.PlayOneShot(JumpSound);
+			mRigidBody.AddForce(Vector3.up * 200);
+			if (mAudioSource != null && JumpSound != null)
+			{
+				mAudioSource.PlayOneShot(JumpSound);
+			}
 		}
-		mRigidBody.AddForce(Vector3.up * 200);
 
 	}
 
-	void OnMove(InputValue inputValue)
+	void OnMove(InputValue input)
     {
-
-		Debug.Log("Move! "+ Input.GetAxis("Horizontal").ToString() );
-		float speedX = Input.GetAxisRaw("Horizontal");  // Left, Right
-		float speedY = Input.GetAxisRaw("Vertical");  // Back, Forward
-		Vector3 moveVec = new Vector3(speedX, 0, speedY);
-
-		mRigidBody.AddTorque(Vector3.back * Input.GetAxis("Horizontal") * 10);
+	    Vector2 inputVec = input.Get<Vector2>();
+	    float multiplier = 10f;
+		// Debug.Log("Move! "+ Input.GetAxis("Horizontal").ToString() );
+		mRigidBody.AddTorque(Vector3.back * inputVec.x * multiplier);
+		mRigidBody.AddTorque(Vector3.right * inputVec.y * multiplier);
 
 	}
 
 	void FixedUpdate () {
-		if (mRigidBody != null) {
-			if (Input.GetButton ("Horizontal")) {
-				mRigidBody.AddTorque(Vector3.back * Input.GetAxis("Horizontal")*10);
-			}
-			if (Input.GetButton ("Vertical")) {
-				Debug.Log(Input.GetAxis("Vertical"));
-				mRigidBody.AddTorque(Vector3.right * Input.GetAxis("Vertical")*10);
-			}
-		}
+		
+		// if (mRigidBody != null) {
+		// 	if (Input.GetButton ("Horizontal")) {
+		// 		mRigidBody.AddTorque(Vector3.back * Input.GetAxis("Horizontal")*10); // returns between -1..1
+		// 	}
+		// 	if (Input.GetButton ("Vertical")) {
+		// 		Debug.Log(Input.GetAxis("Vertical"));
+		// 		mRigidBody.AddTorque(Vector3.right * Input.GetAxis("Vertical")*10);
+		// 	}
+		// }
 		if (ViewCamera != null) {
 			Vector3 direction = (Vector3.up*2+Vector3.back)*2;
-			RaycastHit hit;
 			Debug.DrawLine(transform.position,transform.position+direction,Color.red);
-			if(Physics.Linecast(transform.position,transform.position+direction,out hit)){
+			if(Physics.Linecast(transform.position,transform.position+direction,out RaycastHit hit)){
 				ViewCamera.transform.position = hit.point;
 			}else{
 				ViewCamera.transform.position = transform.position+direction;
